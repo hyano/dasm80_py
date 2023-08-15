@@ -25,16 +25,18 @@ options:
 
 ## Label file
 
-| command       | description             |
-| ------------- | ----------------------- | 
-| c addr        | code                    |
-| b addr count  | byte data               |
-| w addr count  | word data               |
-| t addr count  | jump table              |
-| n addr count  | data table              |
-| n addr        | disable labeling        |
+| command               | description             |
+| --------------------- | ----------------------- | 
+| c addr                | code                    |
+| b addr count [width]  | byte data               |
+| w addr count [width]  | word data               |
+| t addr count          | jump table              |
+| n addr count          | data table              |
+| n addr                | disable labeling        |
 
-addr, size are hexadecimal format
+* addr, count, width are hexadecimal format.
+* if count is 0, it continues to next label.
+* default width is 10 for byte, 8 for word. 
 
 ## License
 This software is released under [MIT License](LICENSE).

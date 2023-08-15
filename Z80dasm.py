@@ -33,6 +33,7 @@ class Z80dasm:
         self.m_output = False
         self.attr = [0] * 0x10000
         self.datalen = [1] * 0x10000
+        self.datawidth = [0] * 0x10000
 
         self.m_start_addr = 0x00000
         self.m_end_addr   = 0x10000
@@ -67,21 +68,34 @@ class Z80dasm:
     def is_no_label(self, addr):
         return (self.attr[addr] & self.A_NO_LABEL) != 0
 
+    def is_defined(self, addr):
+        if self.is_code(addr): return True
+        if self.is_byte(addr): return True
+        if self.is_word(addr): return True
+        if self.is_jp_table(addr): return True
+        if self.is_dt_table(addr): return True
+        return False
+
     # Set attributes
 
     def set_analyzed(self, addr):
         self.attr[addr] |= self.A_ANALYZED
 
     def set_code(self, addr):
-        self.attr[addr] |= self.A_CODE
+        if not self.is_defined(addr):
+            self.attr[addr] |= self.A_CODE
 
-    def set_byte(self, addr, count):
+    def set_byte(self, addr, count, width = 16):
         self.attr[addr] |= self.A_BYTE
         self.datalen[addr] = count
+        self.datawidth[addr] = width
+        self.set_label(addr + count)
 
-    def set_word(self, addr, count):
+    def set_word(self, addr, count, width = 16):
         self.attr[addr] |= self.A_WORD
         self.datalen[addr] = count
+        self.datawidth[addr] = width
+        self.set_label(addr + count * 2)
 
     def set_jp_table(self, addr, count):
         self.attr[addr] |= self.A_JP_TABLE
@@ -108,6 +122,12 @@ class Z80dasm:
 
     def set_no_label(self, addr):
         self.attr[addr] |= self.A_NO_LABEL
+        self.attr[addr] &= ~self.A_LABEL
+
+    def next_label(self, addr, step = 1):
+        while addr < self.m_end_addr and not self.is_label(addr):
+            addr += step
+        return addr
 
     def stop(self, b):
         self.m_stop = b
@@ -169,6 +189,17 @@ class Z80dasm:
                 opcode = self.rop()
                 self.exec(self.op_op, opcode)
 
+        # define unknown block as byte
+        for addr in range(self.m_start_addr, self.m_end_addr):
+            if self.is_label(addr) and not self.is_defined(addr):
+                top = addr
+                addr += 1
+                while addr < self.m_end_addr:
+                    if self.is_label(addr) or self.is_defined(addr):
+                        break
+                    addr += 1
+                self.set_byte(top, addr - top)
+
         # Pass 2
         self.m_output = True
         self.m_pc = self.m_start_addr
@@ -176,21 +207,29 @@ class Z80dasm:
             addr = self.m_pc
             if self.is_label(addr):
                 self.p("L{:04x}:".format(addr))
-            if (self.is_code(addr)):
+
+            if self.is_code(addr):
                 self.reg_n()
                 opcode = self.rop()
                 self.exec(self.op_op, opcode)
-            elif (self.is_byte(addr)):
+            elif self.is_byte(addr):
                 count = self.datalen[addr]
+                width = self.datawidth[addr]
+                if count == 0:
+                    next_addr = self.next_label(addr + 1)
+                    count = next_addr - addr
+                self.dump_byte('${:02x}', count, width)
+            elif self.is_word(addr):
                 count = self.datalen[addr]
-                self.dump_byte('${:04x}', count)
-            elif (self.is_word(addr)):
-                count = self.datalen[addr]
-                self.dump_word('${:04x}', count)
-            elif (self.is_jp_table(addr)):
+                width = self.datawidth[addr]
+                if count == 0:
+                    next_addr = self.next_label(addr + 2 , 2)
+                    count = next_addr - addr
+                self.dump_word('${:04x}', count, width)
+            elif self.is_jp_table(addr):
                 count = self.datalen[addr]
                 self.dump_word('L{:04x}', count)
-            elif (self.is_dt_table(addr)):
+            elif self.is_dt_table(addr):
                 count = self.datalen[addr]
                 self.dump_word('L{:04x}', count)
             else:
@@ -337,6 +376,7 @@ class Z80dasm:
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
         nn = self.arg16()
+        self.set_label(nn)
         self.p("\tld\t{:s},${:04x}".format(reg[r0], nn))
 
     def ld_hl_pnn(self):
