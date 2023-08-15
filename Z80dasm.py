@@ -41,6 +41,7 @@ class Z80dasm:
         self.m_entry_addr = 0x00000
 
         self.m_label_prefix = "L"
+        self.m_comment_prefix = "; "
 
         self.initialize_mnemonics()
         self.initialize_tables()
@@ -336,7 +337,7 @@ class Z80dasm:
 
     def output_comment(self, addr):
         for comment in self.comment[addr]:
-            self.p("; {:s}".format(comment))
+            self.p(f"{self.m_comment_prefix}{comment:s}")
 
     # Memory access
 
