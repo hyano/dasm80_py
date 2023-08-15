@@ -458,7 +458,7 @@ class Z80dasm:
         r0 = (self.m_opcode >> 4) & 0x03
         addr = self.arg16()
         self.set_label(addr)
-        self.p(f"\tld\t{reg[r0]:s},({self.str_l(addr)}),hl")
+        self.p(f"\tld\t{reg[r0]:s},({self.str_l(addr)})")
 
     def ld_pnn_hl(self):
         addr = self.arg16()
