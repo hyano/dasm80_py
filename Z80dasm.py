@@ -241,10 +241,10 @@ class Z80dasm:
                 self.dump_word('${:04x}', count, width)
             elif self.is_jp_table(addr):
                 count = self.datalen[addr]
-                self.dump_word(self.m_label_prefix+'{:04x}', count)
+                self.dump_word(f"{self.m_label_prefix}{{:04x}}", count)
             elif self.is_dt_table(addr):
                 count = self.datalen[addr]
-                self.dump_word(self.m_label_prefix+'{:04x}', count)
+                self.dump_word(f"{self.m_label_prefix}{{:04x}}", count)
             else:
                 self.p("\tdb\t${:02x}".format(self.rop()))
 
