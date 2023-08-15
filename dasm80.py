@@ -24,44 +24,7 @@ def mem_write(addr, data):
 def load_label_file(dasm, label_file):
     fh = open(label_file, 'r')
     for line in fh:
-        l = line.rstrip('\n').split(" ")
-        if (l[0] == 'c'):
-            addr = int(l[1], 16)
-            dasm.set_code(addr)
-            dasm.set_label(addr)
-        elif (l[0] == 'b'):
-            addr = int(l[1], 16)
-            count = int(l[2], 16)
-            if len(l) >= 4:
-                width = int(l[3], 16)
-                dasm.set_byte(addr, count, width)
-            else:
-                dasm.set_byte(addr, count)
-            dasm.set_label(addr)
-        elif (l[0] == 'w'):
-            addr = int(l[1], 16)
-            count = int(l[2], 16)
-            if len(l) >= 4:
-                width = int(l[3], 16)
-            else:
-                dasm.set_word(addr, count)
-            dasm.set_label(addr)
-        elif (l[0] == 't'):
-            addr = int(l[1], 16)
-            count = int(l[2], 16)
-            dasm.set_jp_table(addr, count)
-            dasm.set_label(addr)
-        elif (l[0] == 'u'):
-            addr = int(l[1], 16)
-            count = int(l[2], 16)
-            dasm.set_dt_table(addr, count)
-            dasm.set_label(addr)
-        elif (l[0] == 'l'):
-            addr = int(l[1], 16)
-            dasm.set_label(addr)
-        elif (l[0] == 'n'):
-            addr = int(l[1], 16)
-            dasm.set_no_label(addr)
+        dasm.label_command(line.rstrip('\n'))
     fh.close()
 
 def main():

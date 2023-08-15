@@ -235,6 +235,49 @@ class Z80dasm:
             else:
                 self.p("\tdb\t${:02x}".format(self.rop()))
 
+    # Label file processing
+
+    def label_command(self, line):
+        l = line.split(" ")
+        if (l[0] == 'c'):
+            addr = int(l[1], 16)
+            self.set_code(addr)
+            self.set_label(addr)
+        elif (l[0] == 'b'):
+            addr = int(l[1], 16)
+            count = int(l[2], 16)
+            if len(l) >= 4:
+                width = int(l[3], 16)
+                self.set_byte(addr, count, width)
+            else:
+                self.set_byte(addr, count)
+            self.set_label(addr)
+        elif (l[0] == 'w'):
+            addr = int(l[1], 16)
+            count = int(l[2], 16)
+            if len(l) >= 4:
+                width = int(l[3], 16)
+            else:
+                self.set_word(addr, count)
+            self.set_label(addr)
+        elif (l[0] == 't'):
+            addr = int(l[1], 16)
+            count = int(l[2], 16)
+            self.set_jp_table(addr, count)
+            self.set_label(addr)
+        elif (l[0] == 'u'):
+            addr = int(l[1], 16)
+            count = int(l[2], 16)
+            self.set_dt_table(addr, count)
+            self.set_label(addr)
+        elif (l[0] == 'l'):
+            addr = int(l[1], 16)
+            self.set_label(addr)
+        elif (l[0] == 'n'):
+            addr = int(l[1], 16)
+            self.set_no_label(addr)
+
+    # Output
 
     def p(self, str, end='\n'):
         if self.m_output:
