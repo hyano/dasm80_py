@@ -231,14 +231,14 @@ class Z80dasm:
                 if count == 0:
                     next_addr = self.next_label(addr + 1)
                     count = next_addr - addr
-                self.dump_byte('${:02x}', count, width)
+                self.dump_byte("${:02x}", count, width)
             elif self.is_word(addr):
                 count = self.datalen[addr]
                 width = self.datawidth[addr]
                 if count == 0:
                     next_addr = self.next_label(addr + 2 , 2)
                     count = next_addr - addr
-                self.dump_word('${:04x}', count, width)
+                self.dump_word("${:04x}", count, width)
             elif self.is_jp_table(addr):
                 count = self.datalen[addr]
                 self.dump_word(f"{self.m_label_prefix}{{:04x}}", count)
@@ -298,7 +298,7 @@ class Z80dasm:
 
     # Output
 
-    def p(self, str, end='\n'):
+    def p(self, str, end="\n"):
         if self.m_output:
             self.print(str, end=end)
 
@@ -313,27 +313,27 @@ class Z80dasm:
 
     def dump_byte(self, msg, count, width=16):
         while count > 0:
-            self.p('\tdb\t', end = '')
+            self.p("\tdb\t", end = "")
             for i in range(width):
                 if i != 0:
-                    self.p(', ', end='')
-                self.p(msg.format(self.arg()), end='')
+                    self.p(", ", end="")
+                self.p(msg.format(self.arg()), end="")
                 count -= 1
                 if count == 0:
                     break
-            self.p('')
+            self.p("")
 
     def dump_word(self, msg, count, width=8):
         while count > 0:
-            self.p('\tdw\t', end = '')
+            self.p("\tdw\t", end = "")
             for i in range(width):
                 if i != 0:
-                    self.p(', ', end='')
-                self.p(msg.format(self.arg16()), end='')
+                    self.p(", ", end="")
+                self.p(msg.format(self.arg16()), end="")
                 count -= 1
                 if count == 0:
                     break
-            self.p('')
+            self.p("")
 
     def output_comment(self, addr):
         for comment in self.comment[addr]:
@@ -2518,21 +2518,21 @@ class Z80dasm:
     def op_op_ff(self): self.rst_p()
 
     def initialize_mnemonics(self):
-        self.m_reg8n = ['b', 'c', 'd', 'e', 'h', 'l', '(hl)', 'a']
-        self.m_reg16n = ['bc', 'de', 'hl', 'sp']
-        self.m_reg16an = ['bc', 'de', 'hl', 'af']
+        self.m_reg8n = ["b", "c", "d", "e", "h", "l", "(hl)", "a"]
+        self.m_reg16n = ["bc", "de", "hl", "sp"]
+        self.m_reg16an = ["bc", "de", "hl", "af"]
 
-        self.m_reg8x = ['b', 'c', 'd', 'e', 'ixh', 'ixl', '(hl)', 'a']
-        self.m_reg16x = ['bc', 'de', 'ix', 'sp']
-        self.m_reg16ax = ['bc', 'de', 'ix', 'af']
+        self.m_reg8x = ["b", "c", "d", "e", "ixh", "ixl", "(hl)", "a"]
+        self.m_reg16x = ["bc", "de", "ix", "sp"]
+        self.m_reg16ax = ["bc", "de", "ix", "af"]
 
-        self.m_reg8y = ['b', 'c', 'd', 'e', 'iyh', 'iyl', '(hl)', 'a']
-        self.m_reg16y = ['bc', 'de', 'iy', 'sp']
-        self.m_reg16ay = ['bc', 'de', 'iy', 'af']
+        self.m_reg8y = ["b", "c", "d", "e", "iyh", "iyl", "(hl)", "a"]
+        self.m_reg16y = ["bc", "de", "iy", "sp"]
+        self.m_reg16ay = ["bc", "de", "iy", "af"]
 
         self.reg_n()
 
-        self.m_cc = ['nz', 'z', 'nc', 'c', 'po', 'pe', 'p', 'm']
+        self.m_cc = ["nz", "z", "nc", "c", "po", "pe", "p", "m"]
 
     def initialize_tables(self):
         self.s8 = [0] * 0x100
