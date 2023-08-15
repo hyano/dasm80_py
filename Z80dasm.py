@@ -49,6 +49,9 @@ class Z80dasm:
     def config_label_prefix(self, prefix):
         self.m_label_prefix = prefix
 
+    def is_valid_addr(self, addr):
+        return (addr >= self.m_start_addr) and (addr < self.m_end_addr)
+
     # Check attributes
 
     def is_analyzed(self, addr):
@@ -124,6 +127,7 @@ class Z80dasm:
         self.set_label(addr)
 
     def set_label(self, addr):
+        if not self.is_valid_addr(addr): return
         if not self.is_no_label(addr):
             self.attr[addr] |= self.A_LABEL
 
