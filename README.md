@@ -21,6 +21,8 @@ options:
                         start address
   -e ENTRY, --entry ENTRY
                         entry address
+  --label-prefix LABEL_PREFIX
+                        label prefix
 ```
 
 ## Label file
