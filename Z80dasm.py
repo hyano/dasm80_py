@@ -246,7 +246,7 @@ class Z80dasm:
                 count = self.datalen[addr]
                 self.dump_word(f"{self.m_label_prefix}{{:04x}}", count)
             else:
-                self.p("\tdb\t${:02x}".format(self.rop()))
+                self.p(f"\tdb\t${self.rop():02x}")
 
     # Label file processing
 
@@ -304,9 +304,9 @@ class Z80dasm:
 
     def str_s8(self, value):
         if value >= 0:
-            return "+{:02x}h".format(value)
+            return f"+{value:02x}h"
         else:
-            return "-{:02x}h".format(-value)
+            return f"-{-value:02x}h"
 
     def str_l(self, addr):
         return f"{self.m_label_prefix}{addr:04x}"
@@ -376,34 +376,34 @@ class Z80dasm:
         reg = self.m_reg8
         r0 = (self.m_opcode >> 3) & 0x07
         r1 = (self.m_opcode >> 0) & 0x07
-        self.p("\tld\t{:s},{:s}".format(reg[r0], reg[r1]))
+        self.p(f"\tld\t{reg[r0]:s},{reg[r1]:s}")
 
     def ld_r_n(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 3) & 0x07
         n = self.arg()
-        self.p("\tld\t{:s},${:02x}".format(reg[r0], n))
+        self.p(f"\tld\t{reg[r0]:s},${n:02x}")
     
     def ld_r_pxy(self):
         reg = self.m_reg8n
         r0 = (self.m_opcode >> 3) & 0x07
         r1 = 2
         o = self.arg()
-        self.p("\tld\t{:s},({:s}{:s})".format(reg[r0], self.m_reg16[r1], self.str_s8(o)))
+        self.p(f"\tld\t{reg[r0]:s},({self.m_reg16[r1]:s}{self.str_s8(o):s})")
 
     def ld_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.arg()
-        self.p("\tld\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\tld\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def ld_pxy_n(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
         n = self.arg()
-        self.p("\tld\t({:s}{:s}),${:02x}".format(reg[r0], self.str_s8(o), n))
+        self.p(f"\tld\t({reg[r0]:s}{self.str_s8(o):s}),${n:02x}")
 
     def ld_a_pbc(self):
         self.p("\tld\ta,(bc)")
@@ -446,7 +446,7 @@ class Z80dasm:
         r0 = (self.m_opcode >> 4) & 0x03
         nn = self.arg16()
         self.set_label(nn)
-        self.p("\tld\t{:s},${:04x}".format(reg[r0], nn))
+        self.p(f"\tld\t{reg[r0]:s},${nn:04x}")
 
     def ld_hl_pnn(self):
         addr = self.arg16()
@@ -478,12 +478,12 @@ class Z80dasm:
     def push_qq(self):
         reg = self.m_reg16a
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p("\tpush\t{:s}".format(reg[r0]))
+        self.p(f"\tpush\t{reg[r0]:s}")
 
     def pop_qq(self):
         reg = self.m_reg16a
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p("\tpop\t{:s}".format(reg[r0]))
+        self.p(f"\tpop\t{reg[r0]:s}")
 
     # Exchange, Block Transfer, Search Group
 
@@ -528,144 +528,144 @@ class Z80dasm:
     def add_a_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tadd\ta,{:s}".format(reg[r0]))
+        self.p(f"\tadd\ta,{reg[r0]:s}")
 
     def add_a_n(self):
         n = self.arg()
-        self.p("\tadd\ta,${:02x}".format(n))
+        self.p(f"\tadd\ta,${n:02x}")
 
     def add_a_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tadd\ta,({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tadd\ta,({reg[r0]:s}{self.str_s8(o):s})")
 
     def adc_a_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tadc\ta,{:s}".format(reg[r0]))
+        self.p(f"\tadc\ta,{reg[r0]:s}")
 
     def adc_a_n(self):
         n = self.arg()
-        self.p("\tadc\ta,${:02x}".format(n))
+        self.p(f"\tadc\ta,${n:02x}")
 
     def adc_a_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tadc\ta,({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tadc\ta,({reg[r0]:s}{self.str_s8(o):s})")
 
     def sub_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tsub\t{:s}".format(reg[r0]))
+        self.p(f"\tsub\t{reg[r0]:s}")
 
     def sub_n(self):
         n = self.arg()
-        self.p("\tsub\t${:02x}".format(n))
+        self.p(f"\tsub\t${n:02x}")
 
     def sub_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tsub\t({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tsub\t({reg[r0]:s}{self.str_s8(o):s})")
 
     def sbc_a_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tsbc\ta,{:s}".format(reg[r0]))
+        self.p(f"\tsbc\ta,{reg[r0]:s}")
 
     def sbc_a_n(self):
         n = self.arg()
-        self.p("\tsbc\ta,${:02x}".format(n))
+        self.p(f"\tsbc\ta,${n:02x}")
 
     def sbc_a_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tsbc\ta,({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tsbc\ta,({reg[r0]:s}{self.str_s8(o):s})")
 
     def and_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tand\t{:s}".format(reg[r0]))
+        self.p(f"\tand\t{reg[r0]:s}")
 
     def and_n(self):
         n = self.arg()
-        self.p("\tand\t${:02x}".format(n))
+        self.p(f"\tand\t${n:02x}")
 
     def and_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tand\t({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tand\t({reg[r0]:s}{self.str_s8(o):s})")
 
     def or_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tor\t{:s}".format(reg[r0]))
+        self.p(f"\tor\t{reg[r0]:s}")
 
     def or_n(self):
         n = self.arg()
-        self.p("\tor\t${:02x}".format(n))
+        self.p(f"\tor\t${n:02x}")
 
     def or_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tor\t({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tor\t({reg[r0]:s}{self.str_s8(o):s})")
 
     def xor_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\txor\t{:s}".format(reg[r0]))
+        self.p(f"\txor\t{reg[r0]:s}")
 
     def xor_n(self):
         n = self.arg()
-        self.p("\txor\t${:02x}".format(n))
+        self.p(f"\txor\t${n:02x}")
 
     def xor_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\txor\ta,({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\txor\ta,({reg[r0]:s}{self.str_s8(o):s})")
 
     def cp_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tcp\t{:s}".format(reg[r0]))
+        self.p(f"\tcp\t{reg[r0]:s}")
 
     def cp_n(self):
         n = self.arg()
-        self.p("\tcp\t${:02x}".format(n))
+        self.p(f"\tcp\t${n:02x}")
 
     def cp_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tcp\t({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tcp\t({reg[r0]:s}{self.str_s8(o):s})")
 
     def inc_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 3) & 0x07
-        self.p("\tinc\t{:s}".format(reg[r0]))
+        self.p(f"\tinc\t{reg[r0]:s}")
 
     def inc_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tinc\t({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tinc\t({reg[r0]:s}{self.str_s8(o):s})")
 
     def dec_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 3) & 0x07
-        self.p("\tdec\t{:s}".format(reg[r0]))
+        self.p(f"\tdec\t{reg[r0]:s}")
 
     def dec_pxy(self):
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p("\tdec\t({:s}{:s})".format(reg[r0], self.str_s8(o)))
+        self.p(f"\tdec\t({reg[r0]:s}{self.str_s8(o):s})")
 
     # General-Purpose Arithmetic and CPU Control Group
 
@@ -710,27 +710,27 @@ class Z80dasm:
     def add_hl_ss(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p("\tadd\thl,{:s}".format(reg[r0]))
+        self.p(f"\tadd\thl,{reg[r0]:s}")
 
     def adc_hl_ss(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p("\tadc\thl,{:s}".format(reg[r0]))
+        self.p(f"\tadc\thl,{reg[r0]:s}")
 
     def sbc_hl_ss(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p("\tsbc\thl,{:s}".format(reg[r0]))
+        self.p(f"\tsbc\thl,{reg[r0]:s}")
 
     def inc_ss(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p("\tinc\t{:s}".format(reg[r0]))
+        self.p(f"\tinc\t{reg[r0]:s}")
 
     def dec_ss(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p("\tdec\t{:s}".format(reg[r0]))
+        self.p(f"\tdec\t{reg[r0]:s}")
 
     # Rotate and Shift Group
 
@@ -749,138 +749,138 @@ class Z80dasm:
     def rlc_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\trlc\t{:s}".format(reg[r0]))
+        self.p(f"\trlc\t{reg[r0]:s}")
     
     def rlc_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\trlc\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\trlc\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def rlc_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\trlc\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\trlc\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def rl_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\trl\t{:s}".format(reg[r0]))
+        self.p(f"\trl\t{reg[r0]:s}")
 
     def rl_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\trl\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\trl\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def rl_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\trl\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\trl\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def rrc_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\trrc\t{:s}".format(reg[r0]))
+        self.p(f"\trrc\t{reg[r0]:s}")
 
     def rrc_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\trrc\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\trrc\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def rrc_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\trrc\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\trrc\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def rr_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\trr\t{:s}".format(reg[r0]))
+        self.p(f"\trr\t{reg[r0]:s}")
 
     def rr_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\trr\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\trr\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def rr_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\trr\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\trr\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def sla_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tsla\t{:s}".format(reg[r0]))
+        self.p(f"\tsla\t{reg[r0]:s}")
 
     def sla_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\tsla\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\tsla\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def sla_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tsla\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\tsla\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def sll_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tsll\t{:s}".format(reg[r0]))
+        self.p(f"\tsll\t{reg[r0]:s}")
 
     def sll_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\tsll\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\tsll\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def sll_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tsll\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\tsll\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def sra_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tsra\t{:s}".format(reg[r0]))
+        self.p(f"\tsra\t{reg[r0]:s}")
 
     def sra_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\tsra\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\tsra\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def sra_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tsra\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\tsra\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def srl_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
-        self.p("\tsrl\t{:s}".format(reg[r0]))
+        self.p(f"\tsrl\t{reg[r0]:s}")
 
     def srl_pxy(self):
         r0 = 2
         o = self.m_idx
-        self.p("\tsrl\t({:s}{:s})".format(self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\tsrl\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def srl_pxy_r(self):
         reg = self.m_reg8n
         r0 = 2
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tsrl\t({:s}{:s}),{:s}".format(self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\tsrl\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def rld(self):
         self.p("\trld")
@@ -894,25 +894,25 @@ class Z80dasm:
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
         b = (self.m_opcode >> 3) & 0x07
-        self.p("\tbit\t{:d},{:s}".format(b, reg[r0]))
+        self.p(f"\tbit\t{b:d},{reg[r0]:s}")
 
     def bit_pxy(self):
         r0 = 2
         b = (self.m_opcode >> 3) & 0x07
         o = self.m_idx
-        self.p("\tbit\t{:d},({:s}{:s})".format(b, self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\tbit\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def set_b_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
         b = (self.m_opcode >> 3) & 0x07
-        self.p("\tset\t{:d},{:s}".format(b, reg[r0]))
+        self.p(f"\tset\t{b:d},{reg[r0]:s}")
 
     def set_pxy(self):
         r0 = 2
         b = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tset\t{:d},({:s}{:s})".format(b, self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\tset\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def set_pxy_r(self):
         reg = self.m_reg8n
@@ -920,19 +920,19 @@ class Z80dasm:
         b = (self.m_opcode >> 3) & 0x07
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tset\t{:d},({:s}{:s}),{:s}".format(b, self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\tset\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     def res_b_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 0) & 0x07
         b = (self.m_opcode >> 3) & 0x07
-        self.p("\tres\t{:d},{:s}".format(b, reg[r0]))
+        self.p(f"\tres\t{b:d},{reg[r0]:s}")
 
     def res_pxy(self):
         r0 = 2
         b = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tres\t{:d},({:s}{:s})".format(b, self.m_reg16[r0], self.str_s8(o)))
+        self.p(f"\tres\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
     def res_pxy_r(self):
         reg = self.m_reg8n
@@ -940,7 +940,7 @@ class Z80dasm:
         b = (self.m_opcode >> 3) & 0x07
         r1 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p("\tres\t{:d},({:s}{:s}),{:s}".format(b, self.m_reg16[r0], self.str_s8(o), reg[r1]))
+        self.p(f"\tres\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
 
     # Jump Group
 
@@ -1010,7 +1010,7 @@ class Z80dasm:
 
     def ret_cc(self):
         cc = (self.m_opcode >> 3) & 0x07
-        self.p("\tret\t{:s}".format(self.m_cc[cc]))
+        self.p(f"\tret\t{self.m_cc[cc]:s}")
 
     def reti(self):
         self.p("\treti")
@@ -1026,17 +1026,17 @@ class Z80dasm:
         addr = self.m_opcode & 0x38
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\trst\t{:02x}h".format(addr))
+        self.p(f"\trst\t{addr:02x}h")
 
     # Input and Output Group
     def in_a_pn(self):
         n = self.arg()
-        self.p("\tin\ta,(${:02x})".format(n))
+        self.p(f"\tin\ta,(${n:02x})")
 
     def in_r_pc(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 3) & 0x07
-        self.p("\tin\t{:s},(c)".format(reg[r0]))
+        self.p(f"\tin\t{reg[r0]:s},(c)")
 
     def in_f_pc(self):
         self.p("\tin\tf,(c)")
@@ -1055,12 +1055,12 @@ class Z80dasm:
 
     def out_pn_a(self):
         n = self.arg()
-        self.p("\tout\t(${:02x}),a".format(n))
+        self.p(f"\tout\t(${n:02x}),a")
 
     def out_pc_r(self):
         reg = self.m_reg8
         r0 = (self.m_opcode >> 3) & 0x07
-        self.p("\tout\t(c),{:s}".format(reg[r0]))
+        self.p(f"\tout\t(c),{reg[r0]:s}")
 
     def out_pc_0(self):
         self.p("\tout\t(c),0")
@@ -1080,7 +1080,7 @@ class Z80dasm:
     # Illegal opcode
 
     def illegal(self, num):
-        self.p("* ILLEGAL OPCODE: {:04x}".format(self.m_pc - num))
+        self.p(f"* ILLEGAL OPCODE: {self.m_pc - num:04x}")
         self.stop(True)
 
     # opcodes with CB prefix
