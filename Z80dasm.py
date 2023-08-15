@@ -40,8 +40,13 @@ class Z80dasm:
         self.m_end_addr   = 0x10000
         self.m_entry_addr = 0x00000
 
+        self.m_label_prefix = "L"
+
         self.initialize_mnemonics()
         self.initialize_tables()
+
+    def config_label_prefix(self, prefix):
+        self.m_label_prefix = prefix
 
     # Check attributes
 
@@ -213,7 +218,7 @@ class Z80dasm:
             self.output_comment(addr)
 
             if self.is_label(addr):
-                self.p("L{:04x}:".format(addr))
+                self.p(f"{self.str_l(addr)}:")
 
             if self.is_code(addr):
                 self.reg_n()
@@ -235,10 +240,10 @@ class Z80dasm:
                 self.dump_word('${:04x}', count, width)
             elif self.is_jp_table(addr):
                 count = self.datalen[addr]
-                self.dump_word('L{:04x}', count)
+                self.dump_word(self.m_label_prefix+'{:04x}', count)
             elif self.is_dt_table(addr):
                 count = self.datalen[addr]
-                self.dump_word('L{:04x}', count)
+                self.dump_word(self.m_label_prefix+'{:04x}', count)
             else:
                 self.p("\tdb\t${:02x}".format(self.rop()))
 
@@ -301,6 +306,9 @@ class Z80dasm:
             return "+{:02x}h".format(value)
         else:
             return "-{:02x}h".format(-value)
+
+    def str_l(self, addr):
+        return f"{self.m_label_prefix}{addr:04x}"
 
     def dump_byte(self, msg, count, width=16):
         while count > 0:
@@ -405,7 +413,7 @@ class Z80dasm:
     def ld_a_pnn(self):
         addr = self.arg16()
         self.set_label(addr)
-        self.p("\tld\ta,(L{:04x})".format(addr))
+        self.p(f"\tld\ta,({self.str_l(addr)})")
 
     def ld_pbc_a(self):
         self.p("\tld\t(bc),a")
@@ -416,7 +424,7 @@ class Z80dasm:
     def ld_pnn_a(self):
         addr = self.arg16()
         self.set_label(addr)
-        self.p("\tld\t(L{:04x}),a".format(addr))
+        self.p(f"\tld\t({self.str_l(addr)}),a")
 
     def ld_a_i(self):
         self.p("\tld\ta,i")
@@ -442,26 +450,26 @@ class Z80dasm:
     def ld_hl_pnn(self):
         addr = self.arg16()
         self.set_label(addr)
-        self.p("\tld\thl,(L{:04x})".format(addr))
+        self.p(f"\tld\thl,({self.str_l(addr)})")
 
     def ld_dd_pnn(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
         addr = self.arg16()
         self.set_label(addr)
-        self.p("\tld\t{:s},(L{:04x}),hl".format(reg[r0], addr))
+        self.p(f"\tld\t{reg[r0]:s},({self.str_l(addr)}),hl")
 
     def ld_pnn_hl(self):
         addr = self.arg16()
         self.set_label(addr)
-        self.p("\tld\t(L{:04x}),hl".format(addr))
+        self.p(f"\tld\t({self.str_l(addr)}),hl")
 
     def ld_pnn_dd(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
         addr = self.arg16()
         self.set_label(addr)
-        self.p("\tld\t(L{:04x}),{:s}".format(addr, reg[r0]))
+        self.p(f"\tld\t({self.str_l(addr)},{reg[r0]:s}")
 
     def ld_sp_hl(self):
         self.p("\tld\tsp,hl")
@@ -939,7 +947,7 @@ class Z80dasm:
         addr = self.arg16()
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\tjp\tL{:04x}".format(addr))
+        self.p(f"\tjp\t{self.str_l(addr)}")
         self.set_label(self.m_pc)
         self.stop(True)
 
@@ -948,14 +956,14 @@ class Z80dasm:
         addr = self.arg16()
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\tjp\t{:s},L{:04x}".format(self.m_cc[cc], addr))
+        self.p(f"\tjp\t{self.m_cc[cc]:s},{self.str_l(addr)}")
 
     def jr_e(self):
         offset = self.s8[self.arg()]
         addr = self.m_pc + offset
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\tjr\tL{:04x}".format(addr))
+        self.p(f"\tjr\t{self.str_l(addr)}")
         self.set_label(self.m_pc)
         self.stop(True)
 
@@ -965,7 +973,7 @@ class Z80dasm:
         addr = self.m_pc + offset
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\tjr\t{:s},L{:04x}".format(self.m_cc[cc], addr))
+        self.p(f"\tjr\t{self.m_cc[cc]:s},{self.str_l(addr)}")
 
     def jp_phl(self):
         self.p("\tjp\t(hl)")
@@ -977,7 +985,7 @@ class Z80dasm:
         addr = self.m_pc + offset
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\tdjnz\tL{:04x}".format(addr))
+        self.p(f"\tdjnz\t{self.str_l(addr)}")
 
     # Call and Return Group
 
@@ -985,14 +993,14 @@ class Z80dasm:
         addr = self.arg16()
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\tcall\tL{:04x}".format(addr))
+        self.p(f"\tcall\t{self.str_l(addr)}")
 
     def call_cc_nn(self):
         cc = (self.m_opcode >> 3) & 0x07
         addr = self.arg16()
         self.set_label(addr)
         self.set_code(addr)
-        self.p("\tcall\t{:s},L{:04x}".format(self.m_cc[cc], addr))
+        self.p(f"\tcall\t{self.m_cc[cc]:s},{self.str_l(addr)}")
 
     def ret(self):
         self.p("\tret")
