@@ -34,6 +34,7 @@ class Z80dasm:
         self.attr = [0] * 0x10000
         self.datalen = [1] * 0x10000
         self.datawidth = [0] * 0x10000
+        self.comment = [[] for _ in range(0x10000)]
 
         self.m_start_addr = 0x00000
         self.m_end_addr   = 0x10000
@@ -124,6 +125,9 @@ class Z80dasm:
         self.attr[addr] |= self.A_NO_LABEL
         self.attr[addr] &= ~self.A_LABEL
 
+    def add_comment(self, addr, comment):
+        self.comment[addr].append(comment)
+
     def next_label(self, addr, step = 1):
         while addr < self.m_end_addr and not self.is_label(addr):
             addr += step
@@ -205,6 +209,9 @@ class Z80dasm:
         self.m_pc = self.m_start_addr
         while self.m_pc < self.m_end_addr:
             addr = self.m_pc
+
+            self.output_comment(addr)
+
             if self.is_label(addr):
                 self.p("L{:04x}:".format(addr))
 
@@ -239,11 +246,12 @@ class Z80dasm:
 
     def label_command(self, line):
         l = line.split(" ")
-        if (l[0] == 'c'):
+        cmd = l[0]
+        if (cmd == 'c'):
             addr = int(l[1], 16)
             self.set_code(addr)
             self.set_label(addr)
-        elif (l[0] == 'b'):
+        elif (cmd == 'b'):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             if len(l) >= 4:
@@ -252,7 +260,7 @@ class Z80dasm:
             else:
                 self.set_byte(addr, count)
             self.set_label(addr)
-        elif (l[0] == 'w'):
+        elif (cmd == 'w'):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             if len(l) >= 4:
@@ -260,22 +268,27 @@ class Z80dasm:
             else:
                 self.set_word(addr, count)
             self.set_label(addr)
-        elif (l[0] == 't'):
+        elif (cmd == 't'):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             self.set_jp_table(addr, count)
             self.set_label(addr)
-        elif (l[0] == 'u'):
+        elif (cmd == 'u'):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             self.set_dt_table(addr, count)
             self.set_label(addr)
-        elif (l[0] == 'l'):
+        elif (cmd == 'l'):
             addr = int(l[1], 16)
             self.set_label(addr)
-        elif (l[0] == 'n'):
+        elif (cmd == 'n'):
             addr = int(l[1], 16)
             self.set_no_label(addr)
+        
+        elif (cmd == 'r'):
+            addr = int(l[1], 16)
+            comment = " ".join(l[2:])
+            self.add_comment(addr, comment)
 
     # Output
 
@@ -312,6 +325,10 @@ class Z80dasm:
                 if count == 0:
                     break
             self.p('')
+
+    def output_comment(self, addr):
+        for comment in self.comment[addr]:
+            self.p("; {:s}".format(comment))
 
     # Memory access
 
