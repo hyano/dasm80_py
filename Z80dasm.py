@@ -46,6 +46,8 @@ class Z80dasm:
         self.m_end_addr   = 0x10000
         self.m_entry_addr = 0x00000
 
+        self.m_pc = self.m_entry_addr
+
         self.initialize_mnemonics()
         self.initialize_tables()
 
