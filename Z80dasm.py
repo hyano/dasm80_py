@@ -39,6 +39,8 @@ class Z80dasm:
         self.m_label_prefix = "L"
         self.m_comment_prefix = "; "
         self.m_config_patch = False
+        self.m_define_byte = "db"
+        self.m_define_word = "dw"
 
         self.m_start_addr = 0x00000
         self.m_end_addr   = 0x10000
@@ -258,7 +260,7 @@ class Z80dasm:
                 count = self.datalen[addr]
                 self.dump_word(f"{self.m_label_prefix}{{:04x}}", count)
             else:
-                self.p(f"\tdb\t${self.rop():02x}")
+                self.p(f"\t{self.m_define_byte}\t${self.rop():02x}")
 
     # Label file processing
 
@@ -329,7 +331,7 @@ class Z80dasm:
 
     def dump_byte(self, msg, count, width=16):
         while count > 0:
-            self.p("\tdb\t", end = "")
+            self.p(f"\t{self.m_define_byte}\t", end = "")
             for i in range(width):
                 if i != 0:
                     self.p(", ", end="")
@@ -341,7 +343,7 @@ class Z80dasm:
 
     def dump_word(self, msg, count, width=8):
         while count > 0:
-            self.p("\tdw\t", end = "")
+            self.p(f"\t{self.m_define_word}\t", end = "")
             for i in range(width):
                 if i != 0:
                     self.p(", ", end="")
