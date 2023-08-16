@@ -36,18 +36,22 @@ class Z80dasm:
         self.datawidth = [0] * 0x10000
         self.comment = [[] for _ in range(0x10000)]
 
+        self.m_label_prefix = "L"
+        self.m_comment_prefix = "; "
+        self.m_config_patch = False
+
         self.m_start_addr = 0x00000
         self.m_end_addr   = 0x10000
         self.m_entry_addr = 0x00000
-
-        self.m_label_prefix = "L"
-        self.m_comment_prefix = "; "
 
         self.initialize_mnemonics()
         self.initialize_tables()
 
     def config_label_prefix(self, prefix):
         self.m_label_prefix = prefix
+
+    def config_enable_patch(self, enable):
+        self.m_config_patch = enable
 
     def is_valid_addr(self, addr):
         return (addr >= self.m_start_addr) and (addr < self.m_end_addr)
@@ -136,7 +140,11 @@ class Z80dasm:
         self.attr[addr] &= ~self.A_LABEL
 
     def add_comment(self, addr, comment):
-        self.comment[addr].append(comment)
+        self.comment[addr].append(f"{self.m_comment_prefix}{comment:s}")
+
+    def add_patch(self, addr, patch):
+        if self.m_config_patch:
+            self.comment[addr].append(f"{patch:s}")
 
     def next_label(self, addr, step = 1):
         while addr < self.m_end_addr and not self.is_label(addr):
@@ -299,6 +307,10 @@ class Z80dasm:
             addr = int(l[1], 16)
             comment = " ".join(l[2:])
             self.add_comment(addr, comment)
+        elif (cmd == 'p'):
+            addr = int(l[1], 16)
+            patch = " ".join(l[2:])
+            self.add_patch(addr, patch)
 
     # Output
 
@@ -341,7 +353,7 @@ class Z80dasm:
 
     def output_comment(self, addr):
         for comment in self.comment[addr]:
-            self.p(f"{self.m_comment_prefix}{comment:s}")
+            self.p(comment)
 
     # Memory access
 
