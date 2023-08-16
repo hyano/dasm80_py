@@ -41,6 +41,8 @@ class Z80dasm:
         self.m_config_patch = False
         self.m_define_byte = "db"
         self.m_define_word = "dw"
+        self.m_define_jp_table = "dw"
+        self.m_define_dt_table = "dw"
 
         self.m_start_addr = 0x00000
         self.m_end_addr   = 0x10000
@@ -103,13 +105,13 @@ class Z80dasm:
         if not self.is_defined(addr):
             self.attr[addr] |= self.A_CODE
 
-    def set_byte(self, addr, count, width = 16):
+    def set_byte(self, addr, count, width=16):
         self.attr[addr] |= self.A_BYTE
         self.datalen[addr] = count
         self.datawidth[addr] = width
         self.set_label(addr + count)
 
-    def set_word(self, addr, count, width = 16):
+    def set_word(self, addr, count, width=16):
         self.attr[addr] |= self.A_WORD
         self.datalen[addr] = count
         self.datawidth[addr] = width
@@ -253,20 +255,20 @@ class Z80dasm:
                 if count == 0:
                     next_addr = self.next_label(addr + 1)
                     count = next_addr - addr
-                self.dump_byte("${:02x}", count, width)
+                self.dump_byte("${:02x}", count, width=width)
             elif self.is_word(addr):
                 count = self.datalen[addr]
                 width = self.datawidth[addr]
                 if count == 0:
                     next_addr = self.next_label(addr + 2 , 2)
                     count = next_addr - addr
-                self.dump_word("${:04x}", count, width)
+                self.dump_word("${:04x}", count, width=width)
             elif self.is_jp_table(addr):
                 count = self.datalen[addr]
-                self.dump_word(f"{self.m_label_prefix}{{:04x}}", count)
+                self.dump_word(f"{self.m_label_prefix}{{:04x}}", count, directive=self.m_define_jp_table)
             elif self.is_dt_table(addr):
                 count = self.datalen[addr]
-                self.dump_word(f"{self.m_label_prefix}{{:04x}}", count)
+                self.dump_word(f"{self.m_label_prefix}{{:04x}}", count, directive=self.m_define_dt_table)
             else:
                 self.p(f"\t{self.m_define_byte}\t${self.rop():02x}")
 
@@ -275,16 +277,20 @@ class Z80dasm:
     def label_command(self, line):
         l = line.split(" ")
         cmd = l[0]
+
+        # code
         if (cmd == 'c'):
             addr = int(l[1], 16)
             self.set_code(addr)
             self.set_label(addr)
+
+        # data
         elif (cmd == 'b'):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             if len(l) >= 4:
                 width = int(l[3], 16)
-                self.set_byte(addr, count, width)
+                self.set_byte(addr, count, width=width)
             else:
                 self.set_byte(addr, count)
             self.set_label(addr)
@@ -293,9 +299,12 @@ class Z80dasm:
             count = int(l[2], 16)
             if len(l) >= 4:
                 width = int(l[3], 16)
+                self.set_word(addr, count, width=width)
             else:
                 self.set_word(addr, count)
             self.set_label(addr)
+
+        # table
         elif (cmd == 't'):
             addr = int(l[1], 16)
             count = int(l[2], 16)
@@ -306,13 +315,16 @@ class Z80dasm:
             count = int(l[2], 16)
             self.set_dt_table(addr, count)
             self.set_label(addr)
+
+        # label
         elif (cmd == 'l'):
             addr = int(l[1], 16)
             self.set_label(addr)
         elif (cmd == 'n'):
             addr = int(l[1], 16)
             self.set_no_label(addr)
-        
+
+        # comment
         elif (cmd == 'r'):
             addr = int(l[1], 16)
             comment = " ".join(l[2:])
@@ -338,9 +350,11 @@ class Z80dasm:
     def str_l(self, addr):
         return f"{self.m_label_prefix}{addr:04x}"
 
-    def dump_byte(self, msg, count, width=16):
+    def dump_byte(self, msg, count, width=16, directive=None):
+        if directive is None:
+            directive = self.m_define_byte
         while count > 0:
-            self.p(f"\t{self.m_define_byte}\t", end = "")
+            self.p(f"\t{directive}\t", end = "")
             for i in range(width):
                 if i != 0:
                     self.p(", ", end="")
@@ -350,9 +364,11 @@ class Z80dasm:
                     break
             self.p("")
 
-    def dump_word(self, msg, count, width=8):
+    def dump_word(self, msg, count, width=8, directive=None):
+        if directive is None:
+            directive = self.m_define_word
         while count > 0:
-            self.p(f"\t{self.m_define_word}\t", end = "")
+            self.p(f"\t{directive}\t", end = "")
             for i in range(width):
                 if i != 0:
                     self.p(", ", end="")
