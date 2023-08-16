@@ -161,6 +161,9 @@ class Z80dasm:
     def is_stopped(self):
         return self.m_stop
 
+    def clear_state(self):
+        pass
+
     # for DD/FD prefix
 
     def reg_n(self):
@@ -184,6 +187,11 @@ class Z80dasm:
         self.m_opcode = opcode
         op_table[opcode]()
 
+    def execute(self):
+        self.reg_n()
+        opcode = self.rop()
+        self.exec(self.op_op, opcode)
+
     # Disassemble
 
     def disassemble(self, start_addr, end_addr, entry_addr):
@@ -196,6 +204,7 @@ class Z80dasm:
 
         # Pass 1
         self.m_output = False
+        self.clear_state()
         while True:
             for addr in range(self.m_start_addr, self.m_end_addr):
                 if (not self.is_analyzed(addr) and self.is_code(addr)):
@@ -211,9 +220,7 @@ class Z80dasm:
                 if self.m_pc >= self.m_end_addr:
                     break
 
-                self.reg_n()
-                opcode = self.rop()
-                self.exec(self.op_op, opcode)
+                self.execute()
 
         # define unknown block as byte
         for addr in range(self.m_start_addr, self.m_end_addr):
@@ -229,6 +236,7 @@ class Z80dasm:
         # Pass 2
         self.m_output = True
         self.m_pc = self.m_start_addr
+        self.clear_state()
         while self.m_pc < self.m_end_addr:
             addr = self.m_pc
 
@@ -238,9 +246,7 @@ class Z80dasm:
                 self.p(f"{self.str_l(addr)}:")
 
             if self.is_code(addr):
-                self.reg_n()
-                opcode = self.rop()
-                self.exec(self.op_op, opcode)
+                self.execute()
             elif self.is_byte(addr):
                 count = self.datalen[addr]
                 width = self.datawidth[addr]
@@ -323,6 +329,7 @@ class Z80dasm:
             self.print(str, end=end)
 
     def str_s8(self, value):
+        value = self.s8[value]
         if value >= 0:
             return f"+{value:02x}h"
         else:
