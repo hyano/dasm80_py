@@ -953,7 +953,7 @@ class Z80dasm:
 
     def set_pxy(self):
         r0 = 2
-        b = (self.m_opcode >> 0) & 0x07
+        b = (self.m_opcode >> 3) & 0x07
         o = self.m_idx
         self.p(f"\tset\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
@@ -973,7 +973,7 @@ class Z80dasm:
 
     def res_pxy(self):
         r0 = 2
-        b = (self.m_opcode >> 0) & 0x07
+        b = (self.m_opcode >> 3) & 0x07
         o = self.m_idx
         self.p(f"\tres\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
 
