@@ -540,7 +540,7 @@ class Z80dasm:
         self.p("\texx")
 
     def ex_psp_hl(self):
-        self.p("\tex\t(sp),hl")
+        self.p(f"\tex\t(sp),{self.m_reg16[2]}")
 
     def ldi(self):
         self.p("\tldi")
@@ -671,7 +671,7 @@ class Z80dasm:
         reg = self.m_reg16
         r0 = 2
         o = self.arg()
-        self.p(f"\txor\ta,({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\txor\t({reg[r0]:s}{self.str_s8(o):s})")
 
     def cp_r(self):
         reg = self.m_reg8
@@ -753,7 +753,7 @@ class Z80dasm:
     def add_hl_ss(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p(f"\tadd\thl,{reg[r0]:s}")
+        self.p(f"\tadd\t{self.m_reg16[2]},{reg[r0]:s}")
 
     def adc_hl_ss(self):
         reg = self.m_reg16
@@ -1020,7 +1020,7 @@ class Z80dasm:
         self.p(f"\tjr\t{self.m_cc[cc]:s},{self.str_l(addr)}")
 
     def jp_phl(self):
-        self.p("\tjp\t(hl)")
+        self.p(f"\tjp\t({self.m_reg16[2]})")
         self.set_label(self.m_pc)
         self.stop(True)
 
