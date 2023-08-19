@@ -172,16 +172,19 @@ class Z80dasm:
         self.m_reg8 = self.m_reg8n
         self.m_reg16 = self.m_reg16n
         self.m_reg16a = self.m_reg16an
+        self.m_reg_hl_xy = self.m_reg16[2]
 
     def reg_ix(self):
         self.m_reg8 = self.m_reg8x
         self.m_reg16 = self.m_reg16x
         self.m_reg16a = self.m_reg16ax
+        self.m_reg_hl_xy = self.m_reg16[2]
 
     def reg_iy(self):
         self.m_reg8 = self.m_reg8y
         self.m_reg16 = self.m_reg16y
         self.m_reg16a = self.m_reg16ay
+        self.m_reg_hl_xy = self.m_reg16[2]
 
     # Analyze an instruction
 
@@ -430,23 +433,19 @@ class Z80dasm:
     def ld_r_pxy(self):
         reg = self.m_reg8n
         r0 = (self.m_opcode >> 3) & 0x07
-        r1 = 2
         o = self.arg()
-        self.p(f"\tld\t{reg[r0]:s},({self.m_reg16[r1]:s}{self.str_s8(o):s})")
+        self.p(f"\tld\t{reg[r0]:s},({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def ld_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.arg()
-        self.p(f"\tld\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\tld\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def ld_pxy_n(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
         n = self.arg()
-        self.p(f"\tld\t({reg[r0]:s}{self.str_s8(o):s}),${n:02x}")
+        self.p(f"\tld\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),${n:02x}")
 
     def ld_a_pbc(self):
         self.p("\tld\ta,(bc)")
@@ -540,7 +539,7 @@ class Z80dasm:
         self.p("\texx")
 
     def ex_psp_hl(self):
-        self.p(f"\tex\t(sp),{self.m_reg16[2]}")
+        self.p(f"\tex\t(sp),{self.m_reg_hl_xy}")
 
     def ldi(self):
         self.p("\tldi")
@@ -578,10 +577,8 @@ class Z80dasm:
         self.p(f"\tadd\ta,${n:02x}")
 
     def add_a_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tadd\ta,({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tadd\ta,({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def adc_a_r(self):
         reg = self.m_reg8
@@ -593,10 +590,8 @@ class Z80dasm:
         self.p(f"\tadc\ta,${n:02x}")
 
     def adc_a_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tadc\ta,({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tadc\ta,({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def sub_r(self):
         reg = self.m_reg8
@@ -608,10 +603,8 @@ class Z80dasm:
         self.p(f"\tsub\t${n:02x}")
 
     def sub_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tsub\t({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tsub\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def sbc_a_r(self):
         reg = self.m_reg8
@@ -623,10 +616,8 @@ class Z80dasm:
         self.p(f"\tsbc\ta,${n:02x}")
 
     def sbc_a_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tsbc\ta,({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tsbc\ta,({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def and_r(self):
         reg = self.m_reg8
@@ -638,10 +629,8 @@ class Z80dasm:
         self.p(f"\tand\t${n:02x}")
 
     def and_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tand\t({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tand\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def or_r(self):
         reg = self.m_reg8
@@ -653,10 +642,8 @@ class Z80dasm:
         self.p(f"\tor\t${n:02x}")
 
     def or_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tor\t({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tor\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def xor_r(self):
         reg = self.m_reg8
@@ -668,10 +655,8 @@ class Z80dasm:
         self.p(f"\txor\t${n:02x}")
 
     def xor_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\txor\t({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\txor\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def cp_r(self):
         reg = self.m_reg8
@@ -683,10 +668,8 @@ class Z80dasm:
         self.p(f"\tcp\t${n:02x}")
 
     def cp_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tcp\t({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tcp\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def inc_r(self):
         reg = self.m_reg8
@@ -694,10 +677,8 @@ class Z80dasm:
         self.p(f"\tinc\t{reg[r0]:s}")
 
     def inc_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tinc\t({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tinc\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def dec_r(self):
         reg = self.m_reg8
@@ -705,10 +686,8 @@ class Z80dasm:
         self.p(f"\tdec\t{reg[r0]:s}")
 
     def dec_pxy(self):
-        reg = self.m_reg16
-        r0 = 2
         o = self.arg()
-        self.p(f"\tdec\t({reg[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tdec\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     # General-Purpose Arithmetic and CPU Control Group
 
@@ -753,7 +732,7 @@ class Z80dasm:
     def add_hl_ss(self):
         reg = self.m_reg16
         r0 = (self.m_opcode >> 4) & 0x03
-        self.p(f"\tadd\t{self.m_reg16[2]},{reg[r0]:s}")
+        self.p(f"\tadd\t{self.m_reg_hl_xy},{reg[r0]:s}")
 
     def adc_hl_ss(self):
         reg = self.m_reg16
@@ -801,10 +780,9 @@ class Z80dasm:
 
     def rlc_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\trlc\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\trlc\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def rl_r(self):
         reg = self.m_reg8
@@ -812,16 +790,14 @@ class Z80dasm:
         self.p(f"\trl\t{reg[r0]:s}")
 
     def rl_pxy(self):
-        r0 = 2
         o = self.m_idx
-        self.p(f"\trl\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\trl\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def rl_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\trl\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\trl\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def rrc_r(self):
         reg = self.m_reg8
@@ -829,16 +805,14 @@ class Z80dasm:
         self.p(f"\trrc\t{reg[r0]:s}")
 
     def rrc_pxy(self):
-        r0 = 2
         o = self.m_idx
-        self.p(f"\trrc\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\trrc\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def rrc_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\trrc\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\trrc\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def rr_r(self):
         reg = self.m_reg8
@@ -846,16 +820,14 @@ class Z80dasm:
         self.p(f"\trr\t{reg[r0]:s}")
 
     def rr_pxy(self):
-        r0 = 2
         o = self.m_idx
-        self.p(f"\trr\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\trr\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def rr_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\trr\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\trr\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def sla_r(self):
         reg = self.m_reg8
@@ -863,16 +835,14 @@ class Z80dasm:
         self.p(f"\tsla\t{reg[r0]:s}")
 
     def sla_pxy(self):
-        r0 = 2
         o = self.m_idx
-        self.p(f"\tsla\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tsla\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def sla_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\tsla\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\tsla\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def sll_r(self):
         reg = self.m_reg8
@@ -880,16 +850,14 @@ class Z80dasm:
         self.p(f"\tsll\t{reg[r0]:s}")
 
     def sll_pxy(self):
-        r0 = 2
         o = self.m_idx
-        self.p(f"\tsll\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tsll\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def sll_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\tsll\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\tsll\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def sra_r(self):
         reg = self.m_reg8
@@ -897,16 +865,14 @@ class Z80dasm:
         self.p(f"\tsra\t{reg[r0]:s}")
 
     def sra_pxy(self):
-        r0 = 2
         o = self.m_idx
-        self.p(f"\tsra\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tsra\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def sra_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\tsra\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\tsra\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def srl_r(self):
         reg = self.m_reg8
@@ -914,16 +880,14 @@ class Z80dasm:
         self.p(f"\tsrl\t{reg[r0]:s}")
 
     def srl_pxy(self):
-        r0 = 2
         o = self.m_idx
-        self.p(f"\tsrl\t({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tsrl\t({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def srl_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\tsrl\t({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\tsrl\t({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def rld(self):
         self.p("\trld")
@@ -940,10 +904,9 @@ class Z80dasm:
         self.p(f"\tbit\t{b:d},{reg[r0]:s}")
 
     def bit_pxy(self):
-        r0 = 2
         b = (self.m_opcode >> 3) & 0x07
         o = self.m_idx
-        self.p(f"\tbit\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tbit\t{b:d},({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def set_b_r(self):
         reg = self.m_reg8
@@ -952,18 +915,16 @@ class Z80dasm:
         self.p(f"\tset\t{b:d},{reg[r0]:s}")
 
     def set_pxy(self):
-        r0 = 2
         b = (self.m_opcode >> 3) & 0x07
         o = self.m_idx
-        self.p(f"\tset\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tset\t{b:d},({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def set_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
         b = (self.m_opcode >> 3) & 0x07
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\tset\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\tset\t{b:d},({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     def res_b_r(self):
         reg = self.m_reg8
@@ -972,18 +933,16 @@ class Z80dasm:
         self.p(f"\tres\t{b:d},{reg[r0]:s}")
 
     def res_pxy(self):
-        r0 = 2
         b = (self.m_opcode >> 3) & 0x07
         o = self.m_idx
-        self.p(f"\tres\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s})")
+        self.p(f"\tres\t{b:d},({self.m_reg_hl_xy:s}{self.str_s8(o):s})")
 
     def res_pxy_r(self):
         reg = self.m_reg8n
-        r0 = 2
         b = (self.m_opcode >> 3) & 0x07
-        r1 = (self.m_opcode >> 0) & 0x07
+        r0 = (self.m_opcode >> 0) & 0x07
         o = self.m_idx
-        self.p(f"\tres\t{b:d},({self.m_reg16[r0]:s}{self.str_s8(o):s}),{reg[r1]:s}")
+        self.p(f"\tres\t{b:d},({self.m_reg_hl_xy:s}{self.str_s8(o):s}),{reg[r0]:s}")
 
     # Jump Group
 
@@ -1020,7 +979,7 @@ class Z80dasm:
         self.p(f"\tjr\t{self.m_cc[cc]:s},{self.str_l(addr)}")
 
     def jp_phl(self):
-        self.p(f"\tjp\t({self.m_reg16[2]})")
+        self.p(f"\tjp\t({self.m_reg_hl_xy})")
         self.set_label(self.m_pc)
         self.stop(True)
 
