@@ -23,6 +23,7 @@ positional arguments:
   --label-prefix LABEL_PREFIX
                         label prefix
   --enable-patch        enable patch feature
+  --enable-address      enable address output
 ```
 
 ## Label file

@@ -39,6 +39,7 @@ class Z80dasm:
         self.m_label_prefix = "L"
         self.m_comment_prefix = "; "
         self.m_config_patch = False
+        self.m_config_address = False
         self.m_define_byte = "db"
         self.m_define_word = "dw"
         self.m_define_jp_table = "dw"
@@ -58,6 +59,9 @@ class Z80dasm:
 
     def config_enable_patch(self, enable):
         self.m_config_patch = enable
+
+    def config_enable_address(self, enable):
+        self.m_config_address = enable
 
     def is_valid_addr(self, addr):
         return (addr >= self.m_start_addr) and (addr < self.m_end_addr)
@@ -218,6 +222,7 @@ class Z80dasm:
                 break
 
             self.m_pc = addr
+            self.m_current_addr = addr
             self.stop(False)
             while True:
                 if self.is_stopped():
@@ -244,6 +249,8 @@ class Z80dasm:
         self.clear_state()
         while self.m_pc < self.m_end_addr:
             addr = self.m_pc
+
+            self.m_current_addr = addr
 
             self.output_comment(addr)
 
@@ -339,8 +346,10 @@ class Z80dasm:
 
     # Output
 
-    def p(self, str, end="\n"):
+    def p(self, str, end="\n", address=True):
         if self.m_output:
+            if address and self.m_config_address:
+                self.print(f"{self.m_current_addr:04x}:\t", end="")
             self.print(str, end=end)
 
     def str_s8(self, value):
@@ -360,12 +369,12 @@ class Z80dasm:
             self.p(f"\t{directive}\t", end = "")
             for i in range(width):
                 if i != 0:
-                    self.p(", ", end="")
-                self.p(msg.format(self.arg()), end="")
+                    self.p(", ", end="", address=False)
+                self.p(msg.format(self.arg()), end="", address=False)
                 count -= 1
                 if count == 0:
                     break
-            self.p("")
+            self.p("", address=False)
 
     def dump_word(self, msg, count, width=8, directive=None):
         if directive is None:
@@ -374,12 +383,12 @@ class Z80dasm:
             self.p(f"\t{directive}\t", end = "")
             for i in range(width):
                 if i != 0:
-                    self.p(", ", end="")
-                self.p(msg.format(self.arg16()), end="")
+                    self.p(", ", end="", address=False)
+                self.p(msg.format(self.arg16()), end="", address=False)
                 count -= 1
                 if count == 0:
                     break
-            self.p("")
+            self.p("", address=False)
 
     def output_comment(self, addr):
         for comment in self.comment[addr]:
