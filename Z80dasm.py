@@ -295,13 +295,13 @@ class Z80dasm:
         cmd = l[0]
 
         # code
-        if (cmd == 'c'):
+        if (cmd == "c"):
             addr = int(l[1], 16)
             self.set_code(addr)
             self.set_label(addr)
 
         # data
-        elif (cmd == 'b'):
+        elif (cmd == "b"):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             if len(l) >= 4:
@@ -310,7 +310,7 @@ class Z80dasm:
             else:
                 self.set_byte(addr, count)
             self.set_label(addr)
-        elif (cmd == 'w'):
+        elif (cmd == "w"):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             if len(l) >= 4:
@@ -321,39 +321,39 @@ class Z80dasm:
             self.set_label(addr)
 
         # table
-        elif (cmd == 't'):
+        elif (cmd == "t"):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             self.set_jp_table(addr, count)
             self.set_label(addr)
-        elif (cmd == 'u'):
+        elif (cmd == "u"):
             addr = int(l[1], 16)
             count = int(l[2], 16)
             self.set_dt_table(addr, count)
             self.set_label(addr)
 
         # label
-        elif (cmd == 'l'):
+        elif (cmd == "l"):
             addr = int(l[1], 16)
             self.set_label(addr)
-        elif (cmd == 'n'):
+        elif (cmd == "n"):
             addr = int(l[1], 16)
             self.set_no_label(addr)
 
         # comment
-        elif (cmd == 'r' or cmd == 'r0'):
+        elif (cmd == "r" or cmd == "r0"):
             addr = int(l[1], 16)
             comment = " ".join(l[2:])
             self.add_comment(addr, self.comment0, comment)
-        elif (cmd == 'r1'):
+        elif (cmd == "r1"):
             addr = int(l[1], 16)
             comment = " ".join(l[2:])
             self.add_comment(addr, self.comment1, comment)
-        elif (cmd == 'r2'):
+        elif (cmd == "r2"):
             addr = int(l[1], 16)
             comment = " ".join(l[2:])
             self.add_comment(addr, self.comment2, comment)
-        elif (cmd == 'p' or cmd == "p0"):
+        elif (cmd == "p" or cmd == "p0"):
             addr = int(l[1], 16)
             patch = " ".join(l[2:])
             self.add_patch(addr, self.comment0, patch)
