@@ -290,6 +290,10 @@ class Z80dasm:
 
     # Label file processing
 
+    def expand_string(self, s):
+        s = s.replace(r"\t", "\t")
+        return s
+
     def label_command(self, line):
         l = line.split(" ")
         cmd = l[0]
@@ -343,27 +347,27 @@ class Z80dasm:
         # comment
         elif (cmd == "r" or cmd == "r0"):
             addr = int(l[1], 16)
-            comment = " ".join(l[2:])
+            comment = self.expand_string(" ".join(l[2:]))
             self.add_comment(addr, self.comment0, comment)
         elif (cmd == "r1"):
             addr = int(l[1], 16)
-            comment = " ".join(l[2:])
+            comment = self.expand_string(" ".join(l[2:]))
             self.add_comment(addr, self.comment1, comment)
         elif (cmd == "r2"):
             addr = int(l[1], 16)
-            comment = " ".join(l[2:])
+            comment = self.expand_string(" ".join(l[2:]))
             self.add_comment(addr, self.comment2, comment)
         elif (cmd == "p" or cmd == "p0"):
             addr = int(l[1], 16)
-            patch = " ".join(l[2:])
+            patch = self.expand_string(" ".join(l[2:]))
             self.add_patch(addr, self.comment0, patch)
         elif (cmd == "p1"):
             addr = int(l[1], 16)
-            patch = " ".join(l[2:])
+            patch = self.expand_string(" ".join(l[2:]))
             self.add_patch(addr, self.comment1, patch)
         elif (cmd == "p2"):
             addr = int(l[1], 16)
-            patch = " ".join(l[2:])
+            patch = self.expand_string(" ".join(l[2:]))
             self.add_patch(addr, self.comment2, patch)
 
     # Output
