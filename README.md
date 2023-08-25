@@ -28,16 +28,22 @@ positional arguments:
 
 ## Label file
 
-| command               | description                                           |
-| --------------------- | ----------------------------------------------------- | 
-| c addr                | code                                                  |
-| b addr count [width]  | byte data                                             |
-| w addr count [width]  | word data                                             |
-| t addr count          | jump table                                            |
-| n addr count          | data table                                            |
-| n addr                | disable labeling                                      |
-| r addr comment        | insert comment                                        |
-| p addr patch          | insert patch (if --enable-patch option is specified)  |
+| command               | description                                               |
+| --------------------- | --------------------------------------------------------- | 
+| c addr                | code                                                      |
+| b addr count [width]  | byte data                                                 |
+| w addr count [width]  | word data                                                 |
+| t addr count          | jump table                                                |
+| n addr count          | data table                                                |
+| n addr                | disable labeling                                          |
+| r0 addr comment       | insert comment before label                               |
+| r1 addr comment       | insert comment after label                                |
+| r2 addr comment       | insert comment after instruction                          |
+| r addr comment        | same as r0                                                |
+| p0 addr comment       | insert patch before label (--enable-patch required)       |
+| p1 addr comment       | insert patch after label  (--enable-patch required)       |
+| p2 addr comment       | insert patch after instruction  (--enable-patch required) |
+| p addr patch          | same as p0                                                |
 
 * addr, count, width are hexadecimal format.
 * if count is 0, it continues to next label.

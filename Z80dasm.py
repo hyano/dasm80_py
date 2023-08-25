@@ -34,7 +34,9 @@ class Z80dasm:
         self.attr = [0] * 0x10000
         self.datalen = [1] * 0x10000
         self.datawidth = [0] * 0x10000
-        self.comment = [[] for _ in range(0x10000)]
+        self.comment0 = [[] for _ in range(0x10000)]
+        self.comment1 = [[] for _ in range(0x10000)]
+        self.comment2 = [[] for _ in range(0x10000)]
 
         self.m_label_prefix = "L"
         self.m_comment_prefix = "; "
@@ -149,12 +151,12 @@ class Z80dasm:
         self.attr[addr] |= self.A_NO_LABEL
         self.attr[addr] &= ~self.A_LABEL
 
-    def add_comment(self, addr, comment):
-        self.comment[addr].append(f"{self.m_comment_prefix}{comment:s}")
+    def add_comment(self, addr, comment_list, comment):
+        comment_list[addr].append(f"{self.m_comment_prefix}{comment:s}")
 
-    def add_patch(self, addr, patch):
+    def add_patch(self, addr, comment_list, patch):
         if self.m_config_patch:
-            self.comment[addr].append(f"{patch:s}")
+            comment_list[addr].append(f"{patch:s}")
 
     def next_label(self, addr, step = 1):
         while addr < self.m_end_addr and not self.is_label(addr):
@@ -252,10 +254,12 @@ class Z80dasm:
 
             self.m_current_addr = addr
 
-            self.output_comment(addr)
+            self.output_comment(addr, self.comment0)
 
             if self.is_label(addr):
                 self.p(f"{self.str_l(addr)}:")
+
+            self.output_comment(addr, self.comment1)
 
             if self.is_code(addr):
                 self.execute()
@@ -281,6 +285,8 @@ class Z80dasm:
                 self.dump_word(f"{self.m_label_prefix}{{:04x}}", count, directive=self.m_define_dt_table)
             else:
                 self.p(f"\t{self.m_define_byte}\t${self.rop():02x}")
+
+            self.output_comment(addr, self.comment2)
 
     # Label file processing
 
@@ -335,14 +341,30 @@ class Z80dasm:
             self.set_no_label(addr)
 
         # comment
-        elif (cmd == 'r'):
+        elif (cmd == 'r' or cmd == 'r0'):
             addr = int(l[1], 16)
             comment = " ".join(l[2:])
-            self.add_comment(addr, comment)
-        elif (cmd == 'p'):
+            self.add_comment(addr, self.comment0, comment)
+        elif (cmd == 'r1'):
+            addr = int(l[1], 16)
+            comment = " ".join(l[2:])
+            self.add_comment(addr, self.comment1, comment)
+        elif (cmd == 'r2'):
+            addr = int(l[1], 16)
+            comment = " ".join(l[2:])
+            self.add_comment(addr, self.comment2, comment)
+        elif (cmd == 'p' or cmd == "p0"):
             addr = int(l[1], 16)
             patch = " ".join(l[2:])
-            self.add_patch(addr, patch)
+            self.add_patch(addr, self.comment0, patch)
+        elif (cmd == "p1"):
+            addr = int(l[1], 16)
+            patch = " ".join(l[2:])
+            self.add_patch(addr, self.comment1, patch)
+        elif (cmd == "p2"):
+            addr = int(l[1], 16)
+            patch = " ".join(l[2:])
+            self.add_patch(addr, self.comment2, patch)
 
     # Output
 
@@ -390,8 +412,8 @@ class Z80dasm:
                     break
             self.p("", address=False)
 
-    def output_comment(self, addr):
-        for comment in self.comment[addr]:
+    def output_comment(self, addr, comment_list):
+        for comment in comment_list[addr]:
             self.p(comment)
 
     # Memory access
