@@ -42,6 +42,7 @@ def main():
     parser.add_argument("--label-prefix", dest="label_prefix", help="label prefix")
     parser.add_argument("--enable-address", dest="enable_address", help="enable address output", action="store_true")
     parser.add_argument("--enable-patch", dest="enable_patch", help="enable patch id", metavar="ID", action="append", type=int)
+    parser.add_argument("--enable-delete", dest="enable_delete", help="enable delete id", metavar="ID", action="append", type=int)
     args = parser.parse_args()
 
     membus = Bus(mem_read, mem_write)
@@ -53,11 +54,14 @@ def main():
 
     if args.label_prefix:
         dasm.config_label_prefix(args.label_prefix)
+    if args.enable_address:
+        dasm.config_enable_address(True)
     if args.enable_patch:
         for id in args.enable_patch:
             dasm.config_enable_patch(id)
-    if args.enable_address:
-        dasm.config_enable_address(True)
+    if args.enable_delete:
+        for id in args.enable_delete:
+            dasm.config_enable_delete(id)
 
     fh = open(args.filename, "rb")
     addr = start_addr

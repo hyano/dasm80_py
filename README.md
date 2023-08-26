@@ -25,6 +25,7 @@ options:
                         label prefix
   --enable-address      enable address output
   --enable-patch ID     enable patch id
+  --enable-delete ID    enable delete id
 ```
 
 ## Label file
@@ -45,6 +46,7 @@ options:
 | p1 addr id patch      | insert patch after label  (--enable-patch required)       |
 | p2 addr id patch      | insert patch after instruction  (--enable-patch required) |
 | p addr id patch       | same as p0                                                |
+| d start end           | delete code from start to end-1                           |
 
 * addr, count, width are hexadecimal format.
 * id is decimal format.

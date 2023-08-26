@@ -16,14 +16,15 @@ class Bus:
 
 class Z80dasm:
     # attributes bitmap
-    A_ANALYZED  = 0x01
-    A_CODE      = 0x02
-    A_BYTE      = 0x04
-    A_WORD      = 0x08
-    A_JP_TABLE  = 0x10
-    A_DT_TABLE  = 0x20
-    A_LABEL     = 0x40
-    A_NO_LABEL  = 0x80
+    A_ANALYZED  = 0x0001
+    A_CODE      = 0x0002
+    A_BYTE      = 0x0004
+    A_WORD      = 0x0008
+    A_JP_TABLE  = 0x0010
+    A_DT_TABLE  = 0x0020
+    A_LABEL     = 0x0040
+    A_NO_LABEL  = 0x0080
+    A_DELETE    = 0x0100
 
     # Constructor
     def __init__(self, bus, fn_print):
@@ -47,6 +48,7 @@ class Z80dasm:
 
         self.m_config_address = False
         self.m_enabled_patch_id = set()
+        self.m_enabled_delete_id = set()
 
         self.m_start_addr = 0x00000
         self.m_end_addr   = 0x10000
@@ -60,11 +62,14 @@ class Z80dasm:
     def config_label_prefix(self, prefix):
         self.m_label_prefix = prefix
 
+    def config_enable_address(self, enable):
+        self.m_config_address = enable
+
     def config_enable_patch(self, id):
         self.m_enabled_patch_id.add(id)
 
-    def config_enable_address(self, enable):
-        self.m_config_address = enable
+    def config_enable_delete(self, id):
+        self.m_enabled_delete_id.add(id)
 
     def is_valid_addr(self, addr):
         return (addr >= self.m_start_addr) and (addr < self.m_end_addr)
@@ -94,6 +99,9 @@ class Z80dasm:
 
     def is_no_label(self, addr):
         return (self.attr[addr] & self.A_NO_LABEL) != 0
+
+    def is_delete(self, addr):
+        return (self.attr[addr] & self.A_DELETE) != 0
 
     def is_defined(self, addr):
         if self.is_code(addr): return True
@@ -151,6 +159,9 @@ class Z80dasm:
     def set_no_label(self, addr):
         self.attr[addr] |= self.A_NO_LABEL
         self.attr[addr] &= ~self.A_LABEL
+
+    def set_delete(self, addr):
+        self.attr[addr] |= self.A_DELETE
 
     def add_comment(self, addr, comment_list, comment):
         comment_list[addr].append(f"{self.m_comment_prefix}{comment:s}")
@@ -247,13 +258,14 @@ class Z80dasm:
                 self.set_byte(top, addr - top)
 
         # Pass 2
-        self.m_output = True
         self.m_pc = self.m_start_addr
         self.clear_state()
         while self.m_pc < self.m_end_addr:
             addr = self.m_pc
 
             self.m_current_addr = addr
+
+            self.m_output = not self.is_delete(addr)
 
             self.output_comment(addr, self.comment0)
 
@@ -375,6 +387,15 @@ class Z80dasm:
             id = int(l[2], 10)
             patch = self.expand_string(" ".join(l[3:]))
             self.add_patch(addr, self.comment2, id, patch)
+
+        # delete
+        elif (cmd == "d"):
+            start_addr = int(l[1], 16)
+            end_addr = int(l[2], 16)
+            id = int(l[3], 10)
+            if id in self.m_enabled_delete_id:
+                for addr in range(start_addr, end_addr):
+                    self.set_delete(addr)
 
     # Output
 
