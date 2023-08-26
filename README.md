@@ -13,6 +13,7 @@ Z80 disassembler
 positional arguments:
   filename
 
+options:
   -h, --help            show this help message and exit
   -l LABEL, --label LABEL
                         label filename
@@ -22,8 +23,8 @@ positional arguments:
                         entry address
   --label-prefix LABEL_PREFIX
                         label prefix
-  --enable-patch        enable patch feature
   --enable-address      enable address output
+  --enable-patch ID     enable patch id
 ```
 
 ## Label file
@@ -40,12 +41,13 @@ positional arguments:
 | r1 addr comment       | insert comment after label                                |
 | r2 addr comment       | insert comment after instruction                          |
 | r addr comment        | same as r0                                                |
-| p0 addr comment       | insert patch before label (--enable-patch required)       |
-| p1 addr comment       | insert patch after label  (--enable-patch required)       |
-| p2 addr comment       | insert patch after instruction  (--enable-patch required) |
-| p addr patch          | same as p0                                                |
+| p0 addr id patch      | insert patch before label (--enable-patch required)       |
+| p1 addr id patch      | insert patch after label  (--enable-patch required)       |
+| p2 addr id patch      | insert patch after instruction  (--enable-patch required) |
+| p addr id patch       | same as p0                                                |
 
 * addr, count, width are hexadecimal format.
+* id is decimal format.
 * if count is 0, it continues to next label.
 * default width is 10 for byte, 8 for word. 
 

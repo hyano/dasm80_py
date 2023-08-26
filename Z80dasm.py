@@ -40,12 +40,13 @@ class Z80dasm:
 
         self.m_label_prefix = "L"
         self.m_comment_prefix = "; "
-        self.m_config_patch = False
-        self.m_config_address = False
         self.m_define_byte = "db"
         self.m_define_word = "dw"
         self.m_define_jp_table = "dw"
         self.m_define_dt_table = "dw"
+
+        self.m_config_address = False
+        self.m_enabled_patch_id = set()
 
         self.m_start_addr = 0x00000
         self.m_end_addr   = 0x10000
@@ -59,8 +60,8 @@ class Z80dasm:
     def config_label_prefix(self, prefix):
         self.m_label_prefix = prefix
 
-    def config_enable_patch(self, enable):
-        self.m_config_patch = enable
+    def config_enable_patch(self, id):
+        self.m_enabled_patch_id.add(id)
 
     def config_enable_address(self, enable):
         self.m_config_address = enable
@@ -154,8 +155,8 @@ class Z80dasm:
     def add_comment(self, addr, comment_list, comment):
         comment_list[addr].append(f"{self.m_comment_prefix}{comment:s}")
 
-    def add_patch(self, addr, comment_list, patch):
-        if self.m_config_patch:
+    def add_patch(self, addr, comment_list, id, patch):
+        if id in self.m_enabled_patch_id:
             comment_list[addr].append(f"{patch:s}")
 
     def next_label(self, addr, step = 1):
@@ -357,18 +358,23 @@ class Z80dasm:
             addr = int(l[1], 16)
             comment = self.expand_string(" ".join(l[2:]))
             self.add_comment(addr, self.comment2, comment)
+
+        # patch
         elif (cmd == "p" or cmd == "p0"):
             addr = int(l[1], 16)
-            patch = self.expand_string(" ".join(l[2:]))
-            self.add_patch(addr, self.comment0, patch)
+            id = int(l[2], 10)
+            patch = self.expand_string(" ".join(l[3:]))
+            self.add_patch(addr, self.comment0, id, patch)
         elif (cmd == "p1"):
             addr = int(l[1], 16)
-            patch = self.expand_string(" ".join(l[2:]))
-            self.add_patch(addr, self.comment1, patch)
+            id = int(l[2], 10)
+            patch = self.expand_string(" ".join(l[3:]))
+            self.add_patch(addr, self.comment1, id, patch)
         elif (cmd == "p2"):
             addr = int(l[1], 16)
-            patch = self.expand_string(" ".join(l[2:]))
-            self.add_patch(addr, self.comment2, patch)
+            id = int(l[2], 10)
+            patch = self.expand_string(" ".join(l[3:]))
+            self.add_patch(addr, self.comment2, id, patch)
 
     # Output
 
