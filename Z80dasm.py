@@ -555,7 +555,7 @@ class Z80dasm:
     def ld_hl_pnn(self):
         addr = self.arg16()
         self.set_label(addr)
-        self.p(f"\tld\thl,({self.str_l(addr)})")
+        self.p(f"\tld\t{self.m_reg_hl_xy:s},({self.str_l(addr)})")
 
     def ld_dd_pnn(self):
         reg = self.m_reg16
@@ -567,7 +567,7 @@ class Z80dasm:
     def ld_pnn_hl(self):
         addr = self.arg16()
         self.set_label(addr)
-        self.p(f"\tld\t({self.str_l(addr)}),hl")
+        self.p(f"\tld\t({self.str_l(addr)}),{self.m_reg_hl_xy:s}")
 
     def ld_pnn_dd(self):
         reg = self.m_reg16
@@ -577,7 +577,7 @@ class Z80dasm:
         self.p(f"\tld\t({self.str_l(addr)}),{reg[r0]:s}")
 
     def ld_sp_hl(self):
-        self.p("\tld\tsp,hl")
+        self.p(f"\tld\tsp,{self.m_reg_hl_xy:s}")
 
     def push_qq(self):
         reg = self.m_reg16a
