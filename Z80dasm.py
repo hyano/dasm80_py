@@ -292,9 +292,11 @@ class Z80dasm:
                 self.dump_word("${:04x}", count, width=width)
             elif self.is_jp_table(addr):
                 count = self.datalen[addr]
+                self.p(f"\t{self.m_comment_prefix:s} JUMP TABLE")
                 self.dump_word(f"{self.m_label_prefix}{{:04x}}", count, directive=self.m_define_jp_table)
             elif self.is_dt_table(addr):
                 count = self.datalen[addr]
+                self.p(f"\t{self.m_comment_prefix:s} DATA TABLE")
                 self.dump_word(f"{self.m_label_prefix}{{:04x}}", count, directive=self.m_define_dt_table)
             else:
                 self.p(f"\t{self.m_define_byte}\t${self.rop():02x}")
